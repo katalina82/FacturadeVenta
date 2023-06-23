@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Factura de Venta</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script>
+    <script type="text/javascript">
+        // Se declara una variable tipo Objeto para el producto
+        var objProducto = new Object();
+        objProducto.codigo = '';
+        objProducto.nombre = '';
+        objProducto.precio = 0;
+
+        var arregloProductos = [
+            {"codigo": "100", "nombre": "Galón gasolina corriente", "precio": 9000},
+            {"codigo": "8", "nombre": "Galón gasolina extra", "precio": 11000},
+            {"codigo": "91", "nombre": "Aceite para motor", "precio": 125000},
+            {"codigo": "427", "nombre": "Lubricante de llantas", "precio": 86000},
+            {"codigo": "385", "nombre": "Cambio de aceite", "precio": 93500},
+            {"codigo": "872", "nombre": "Shampoo parabrizas", "precio": 79200}
+        ];
+
+        // Función que busca un producto en la base de datos
+        // Recibe como parámetro el código del producto a buscar
+        // Retorna el objeto con el producto encontrado, o retorna null en caso
+        // de que no exista el producto buscado
+        function consultaProducto(pCodConsultar) {
+            var posicion;
+
+            // Se busca el producto dentro del arreglo
+            // Se busca si realmente ese registro existe dentro del arreglo
+            posicion = arregloProductos.findIndex(registro => registro.codigo == pCodConsultar);
+
+            if (posicion == -1) {
+                // El registro no existe, por lo tanto no se puede borrar
+                return null;
+            } else {
+                // El producto sí fue encontrado
+                return arregloProductos[posicion];
+            }
+        }
+
+        function procesaCodigo(pCodigo, pNom, pPrec) {
+            objProducto = consultaProducto(pCodigo);
+
+            if (objProducto == null) {
+                alert('Error: el producto no existe');
+            } else {
+                document.getElementById(pNom).value = objProducto.nombre;
+                document.getElementById(pPrec).value = objProducto.precio;
+            }
+        }
+
+        function procesaCantidad(pCant, pVlrt, pPunit) {
+            document.getElementById(pVlrt).value =
+                pCant * document.getElementById(pPunit).value;
+            procesaValorTotal();
+        }
+
+        function procesaValorTotal() {
+            // Se declara una variable para sumar el subtotal
+            let subTotal = 0;
+
+            // Se calcula el subtotal, con la suma de los valores totales de cada fila
+            subTotal =
+                (Number.isNaN(Number.parseInt(document.getElementById('vt1').value))? 0: Number.parseInt(document.getElementById('vt1').value)) +
+                (Number.isNaN(Number.parseInt(document.getElementById('vt2').value))? 0: Number.parseInt(document.getElementById('vt2').value)) +
+                (Number.isNaN(Number.parseInt(document.getElementById('vt3').value))? 0: Number.parseInt(document.getElementById('vt3').value)) +
+                (Number.isNaN(Number.parseInt(document.getElementById('vt4').value))? 0: Number.parseInt(document.getElementById('vt4').value)) +
+                (Number.isNaN(Number.parseInt(document.getElementById('vt5').value))? 0: Number.parseInt(document.getElementById('vt5').value));
+
+            // Se coloca el subtotal dentro de la página
+            document.getElementById('st').value = subTotal;
+
+            // Calcula el valor a pagar
+            calcularValorPagar();
+        }
+
+        function calcularValorPagar() {
+            var subtotal = parseInt(document.getElementById('st').value);
+            var descuento = parseInt(document.getElementById('ds').value);
+
+            var valorPagar = subtotal - descuento;
+
+            document.getElementById('vp').value = valorPagar;
+
+            calcularDevuelta();
+        }
+
+        function calcularDevuelta() {
+            var valorPagar = parseInt(document.getElementById('vp').value);
+            var valorPagado = parseInt(document.getElementById('pagado').value);
+
+            if (valorPagado < valorPagar) {
+                alert('El Valor Pagado es insuficiente. Por favor, ingrese un monto válido.');
+            } else {
+                var devuelta = valorPagado - valorPagar;
+                document.getElementById('devuelta').value = devuelta;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>FACTURA DE VENTA</h1>
+    <form>
+        <table>
+            <tr>
+                <th>PRODUCTO</th>
+                <th>NOMBRE PRODUCTO</th>
+                <th>PRECIO UNIT.</th>
+                <th>CANTIDAD</th>
+                <th>VALOR TOTAL</th>
+            </tr>
+            <tr>
+                <td><input type="text" id="cp1" size="10" placeholder="Cód. Producto"onchange="procesaCodigo(this.value, 'np1', 'pp1');"></td>
+                <td><input type="text" id="np1" size="30" placeholder="Nombre del producto" readonly></td>
+                <td><input type="text" id="pp1" size="10" placeholder="Precio unitario" readonly></td>
+                <td><input type="number" id="cc1" size="5" placeholder="Cantidad"onchange="procesaCantidad(this.value, 'vt1', 'pp1');"></td>
+                <td><input type="text" id="vt1" size="15" placeholder="Valor total" readonly></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="cp2" size="10" placeholder="Cód. Producto"onchange="procesaCodigo(this.value, 'np2', 'pp2');"></td>
+                <td><input type="text" id="np2" size="30" placeholder="Nombre del producto" readonly></td>
+                <td><input type="text" id="pp2" size="10" placeholder="Precio unitario" readonly></td>
+                <td><input type="number" id="cc2" size="5" placeholder="Cantidad"onchange="procesaCantidad(this.value, 'vt2', 'pp2');"></td>
+                <td><input type="text" id="vt2" size="15" placeholder="Valor total" readonly></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="cp3" size="10" placeholder="Cód. Producto"onchange="procesaCodigo(this.value, 'np3', 'pp3');"></td>
+                <td><input type="text" id="np3" size="30" placeholder="Nombre del producto" readonly></td>
+                <td><input type="text" id="pp3" size="10" placeholder="Precio unitario" readonly></td>
+                <td><input type="number" id="cc3" size="5" placeholder="Cantidad"onchange="procesaCantidad(this.value, 'vt3', 'pp3');"></td>
+                <td><input type="text" id="vt3" size="15" placeholder="Valor total" readonly></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="cp4" size="10" placeholder="Cód. Producto"onchange="procesaCodigo(this.value, 'np4', 'pp4');"></td>
+                <td><input type="text" id="np4" size="30" placeholder="Nombre del producto" readonly></td>
+                <td><input type="text" id="pp4" size="10" placeholder="Precio unitario" readonly></td>
+                <td><input type="number" id="cc4" size="5" placeholder="Cantidad"onchange="procesaCantidad(this.value, 'vt4', 'pp4');"></td>
+                <td><input type="text" id="vt4" size="15" placeholder="Valor total" readonly></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="cp5" size="10" placeholder="Cód. Producto"onchange="procesaCodigo(this.value, 'np5', 'pp5');"></td>
+                <td><input type="text" id="np5" size="30" placeholder="Nombre del producto" readonly></td>
+                <td><input type="text" id="pp5" size="10" placeholder="Precio unitario" readonly></td>
+                <td><input type="number" id="cc5" size="5" placeholder="Cantidad"onchange="procesaCantidad(this.value, 'vt5', 'pp5');"></td>
+                <td><input type="text" id="vt5" size="15" placeholder="Valor total" readonly></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>SUBTOTAL</th>
+                <td><input type="text" id="st" size="15" readonly></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>DESCUENTO</th>
+                <td><input type="number" id="ds" size="15" onchange="calcularValorPagar();"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>VALOR A PAGAR</th>
+                <td><input type="text" id="vp" size="15" readonly></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>VALOR PAGADO</th>
+                <td><input type="text" id="pagado" size="15" oninput="calcularDevuelta()"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>DEVUELTA</th>
+                <td><input type="text" id="devuelta" size="15" readonly></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>
